@@ -14,7 +14,7 @@ app = Celery('financeapp',  broker="amqp://rabbit:rabbit@rabbitmq:5672//")
 app.config_from_object('django.conf:settings', namespace='celery')
 
 # Scrape the database every 1h
-scrape_periodic_interval = 60 * 60
+scrape_periodic_interval = 60
 
 app.conf.beat_schedule = {
     'scrape_aapl': {
@@ -23,17 +23,17 @@ app.conf.beat_schedule = {
         'args': ('AAPL',)
     },
     'scrape_twtr': {
-        'task': 'news.tasks.scrape_yahoo_finance_headline',
+        'task': 'news.tasks.scrape_yahoo_finance_rss',
         'schedule': scrape_periodic_interval,
         'args': ('TWTR',)
     },
     'scrape_gcgold': {
-        'task': 'news.tasks.scrape_yahoo_finance_headline',
+        'task': 'news.tasks.scrape_yahoo_finance_rss',
         'schedule': scrape_periodic_interval,
         'args': ('GC=F',)
     },
     'scrape_intc': {
-        'task': 'news.tasks.scrape_yahoo_finance_headline',
+        'task': 'news.tasks.scrape_yahoo_finance_rss',
         'schedule': scrape_periodic_interval,
         'args': ('INTC',)
     },

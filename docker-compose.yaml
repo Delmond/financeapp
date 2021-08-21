@@ -12,8 +12,7 @@ services:
         hostname: database
     backend:
         build: .
-        command: python manage.py runserver 0.0.0.0:8000
-#        entrypoint: ./entrypoint.sh
+        entrypoint: ./entrypoint.sh
         ports:
             - "8000:8000"
         depends_on:
@@ -29,15 +28,3 @@ services:
             - RABBITMQ_DEFAULT_USER=rabbit
             - RABBITMQ_DEFAULT_PASS=rabbit
         hostname: rabbitmq
-    celery_worker:
-        build: .
-        command: celery -A financeapp worker -l info
-        depends_on:
-            - backend
-            - rabbit
-    celery_beat:
-        build: .
-        command: celery -A financeapp beat -l info
-        depends_on:
-            - backend
-            - rabbit

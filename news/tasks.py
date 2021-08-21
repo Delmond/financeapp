@@ -9,7 +9,8 @@ def scrape_yahoo_finance_rss(symbol):
     user_agent = get_random_user_agent()
     url = get_url(symbol)
     results = fetch_results(url, user_agent)
-
+    if results.status != 200:
+        return f"Symbol {symbol}: Failed to retrieve the items from the API"
     filtered = [filter_fields(item) for item in results.entries]
 
     feeds = Feed.objects.filter(symbol=symbol)
@@ -19,13 +20,15 @@ def scrape_yahoo_finance_rss(symbol):
     if len(new_entries) == 0:
         return f"Symbol {symbol}: No new items where added in the database"
 
-    serialized = FeedSerializer(data=new_entries, many=True)
-    if not serialized.is_valid():
-        print(serialized.errors)
-        return f"Symbol {symbol}: Retrieved data is not valid"
+    saved_entries = 0
+    for entry in new_entries:
+        serialized = FeedSerializer(data=entry)
+        if serialized.is_valid():
+            serialized.save()
+            saved_entries += 1
 
-    serialized.save()
-
+    if saved_entries == 0:
+        return f"Symbol {symbol}: None of the retrieved entries were valid"
 
     # Feed.objects.bulk_create(new_entries)
     return f"Symbol {symbol}: successfully added {len(new_entries)} to the database"
